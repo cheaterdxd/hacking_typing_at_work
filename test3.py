@@ -29,18 +29,30 @@ def main():
     # Create a completer instance
     completer = TriggeredCompleter(trigger_char, options)
 
-    session = PromptSession("Enter query: ", completer=completer)
+    session = PromptSession("Enter query (multiline): ", multiline=True, completer=completer)
 
     bindings = KeyBindings()
-    @bindings.add('enter')
+    
+    # This binding is not necessary if you want to keep the default Enter behavior.
+    # It's added here to show how you might customize Enter, but it's commented out.
+    # @bindings.add('enter')
+    # def _(event):
+    #     # This would override the default Enter behavior, so it's commented out.
+    #     pass
+
+    # Use Meta+Enter to submit the input
+    # The default behavior for Meta+Enter is already set by prompt_toolkit.
+
+    # Optionally, add a custom key binding to exit or perform another action.
+    @bindings.add('c-e')  # Ctrl+E to exit
     def _(event):
-        # Accept the current completion and insert a space
-        event.app.current_buffer.insert_text(' ')
-        event.app.current_buffer.complete_state = None
+        event.app.exit()
+
+    session.key_bindings = bindings
 
     while True:
         try:
-            text = session.prompt(key_bindings=bindings)
+            text = session.prompt()
             print(f"You entered: {text}")
         except KeyboardInterrupt:
             break  # Control-C pressed
@@ -49,19 +61,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-"""class CombinedCompleter(Completer):
-    def __init__(self, completers):
-        self.completers = completers
-
-    def get_completions(self, document, complete_event):
-        for completer in self.completers:
-            yield from completer.get_completions(document, complete_event)
-
-# Define multiple triggers
-trigger1 = TriggeredCompleter("|", ["contains", "not contains", "matches"])
-trigger2 = TriggeredCompleter("~", ["starts with", "ends with"])
-
-# Combine them into a single completer
-combined_completer = CombinedCompleter([trigger1, trigger2])
-
-session = PromptSession("Enter query: ", completer=combined_completer)"""
