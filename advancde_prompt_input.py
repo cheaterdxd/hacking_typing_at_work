@@ -21,7 +21,7 @@ class TriggeredCompleter(Completer):
                 start_pos = -len(original_segment)
                 yield Completion(option, start_position=start_pos)
 
-def main():
+def advancde_input():
     # Define the trigger character and options
     trigger_char = "|"
     options = ["contains", "not contains", "matches"]
@@ -29,18 +29,22 @@ def main():
     # Create a completer instance
     completer = TriggeredCompleter(trigger_char, options)
 
-    session = PromptSession("Enter query: ", completer=completer)
+    session = PromptSession(">", completer=completer, multiline=True)
 
     bindings = KeyBindings()
-    @bindings.add('enter')
+    # @bindings.add('enter')
+    # def _(event):
+    #     # Accept the current completion and insert a space
+    #     event.app.current_buffer.insert_text(' ')
+    #     event.app.current_buffer.complete_state = None
+    @bindings.add('c-e')  # Ctrl+E to exit
     def _(event):
-        # Accept the current completion and insert a space
-        event.app.current_buffer.insert_text(' ')
-        event.app.current_buffer.complete_state = None
+        event.app.exit()
+
 
     while True:
         try:
-            text = session.prompt(key_bindings=bindings)
+            text = session.prompt(key_bindings=bindings, multiline=True)
             print(f"You entered: {text}")
         except KeyboardInterrupt:
             break  # Control-C pressed
